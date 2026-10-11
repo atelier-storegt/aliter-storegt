@@ -139,6 +139,7 @@
             display: flex;
             gap: 0.4rem;
             margin-top: 0.2rem;
+            flex-wrap: wrap;
         }
 
         .size-btn {
@@ -275,8 +276,11 @@
             gap: 0.5rem;
         }
 
-        .whatsapp-checkout-btn:hover {
-            background-color: #20ba5a;
+        .loading-text {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            color: var(--muted);
         }
     </style>
 </head>
@@ -295,7 +299,9 @@
     </section>
 
     <main class="container">
-        <div class="catalog-grid" id="product-list"></div>
+        <div class="catalog-grid" id="product-list">
+            <div class="loading-text">Cargando catálogo...</div>
+        </div>
     </main>
 
     <!-- Drawer del Carrito -->
@@ -321,46 +327,50 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN: Reemplaza con tu número de WhatsApp de Guatemala (+502)
+        // 1. COLOCA AQUÍ TU NÚMERO DE WHATSAPP (CON CÓDIGO 502)
         const WHATSAPP_NUMBER = "50249363761"; 
 
-        // LISTA DE PRODUCTOS (Puedes agregar o cambiar los productos aquí)
-        const products = [
-            {
-                id: 1,
-                name: "Blusa Casual Elegante",
-                price: 150,
-                image: "https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=400",
-                sizes: ["S", "M", "L"]
-            },
-            {
-                id: 2,
-                name: "Pantalon Denim High Waist",
-                price: 220,
-                image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400",
-                sizes: ["28", "30", "32"]
-            },
-            {
-                id: 3,
-                name: "Vestido de Verano Floral",
-                price: 185,
-                image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400",
-                sizes: ["S", "M"]
-            },
-            {
-                id: 4,
-                name: "Chaqueta Campera Urbana",
-                price: 295,
-                image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400",
-                sizes: ["M", "L", "XL"]
-            }
-        ];
+        // 2. PEGA AQUÍ EL ENLACE CSV DE GOOGLE SHEETS
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRWvL1PEr1x-VJL35luTlMD7SWh5DOe-7C8Ss3uNcyQSIYQpiReksVLB1bXYsO5qrM_dx8c1G-FMlO/pub?output=csv";
 
+        let products = [];
         let cart = [];
         let selectedSizes = {};
 
+        async function loadProductsFromSheets() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                const data = await response.text();
+                
+                const rows = data.split('\n').map(row => row.split(','));
+                
+                // Omitir la fila de encabezados (fila 0)
+                products = rows.slice(1).filter(row => row.length >= 5 && row[0].trim() !== "").map(row => {
+                    return {
+                        id: row[0].trim(),
+                        name: row[1].trim(),
+                        price: parseFloat(row[2].trim()),
+                        image: row[3].trim(),
+                        sizes: row[4].trim().replace(/"/g, '').split(';').map(s => s.trim())
+                    };
+                });
+
+                renderProducts();
+            } catch (error) {
+                console.error("Error al cargar productos:", error);
+                document.getElementById('product-list').innerHTML = `
+                    <div class="loading-text">No se pudo cargar el catálogo. Verifica el enlace de Google Sheets.</div>
+                `;
+            }
+        }
+
         function renderProducts() {
             const container = document.getElementById('product-list');
+            if (products.length === 0) {
+                container.innerHTML = `<div class="loading-text">No hay prendas disponibles en este momento.</div>`;
+                return;
+            }
+
             container.innerHTML = products.map(product => {
                 const defaultSize = product.sizes[0];
                 if (!selectedSizes[product.id]) {
@@ -376,12 +386,12 @@
                             <div class="size-selector">
                                 ${product.sizes.map(size => `
                                     <button class="size-btn ${selectedSizes[product.id] === size ? 'active' : ''}" 
-                                            onclick="selectSize(${product.id}, '${size}')">
+                                            onclick="selectSize('${product.id}', '${size}')">
                                         ${size}
                                     </button>
                                 `).join('')}
                             </div>
-                            <button class="add-btn" onclick="addToCart(${product.id})">Agregar al Carrito</button>
+                            <button class="add-btn" onclick="addToCart('${product.id}')">Agregar al Carrito</button>
                         </div>
                     </div>
                 `;
@@ -478,8 +488,8 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // Inicializar catálogo al cargar la página
-        renderProducts();
+        // Cargar productos al iniciar
+        loadProductsFromSheets();
     </script>
 </body>
 </html>
