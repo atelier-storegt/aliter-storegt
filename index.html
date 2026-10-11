@@ -110,11 +110,36 @@
             transform: translateY(-3px);
         }
 
+        .image-container {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .image-container::after {
+            content: "🔍 Toca para ampliar";
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
         .product-image {
             width: 100%;
-            height: 220px;
+            height: 260px;
             object-fit: cover;
             background-color: #eee;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .image-container:hover .product-image {
+            transform: scale(1.03);
         }
 
         .product-info {
@@ -276,6 +301,44 @@
             gap: 0.5rem;
         }
 
+        /* Modal para Ampliar Imagen (Lightbox) */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .image-modal.open {
+            display: flex;
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 8px;
+            object-fit: contain;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.5);
+        }
+
+        .close-image-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
         .loading-text {
             text-align: center;
             grid-column: 1 / -1;
@@ -326,11 +389,17 @@
         </div>
     </div>
 
+    <!-- Modal para Ampliar Foto -->
+    <div class="image-modal" id="image-modal" onclick="closeImageModal()">
+        <span class="close-image-modal">&times;</span>
+        <img class="image-modal-content" id="expanded-image" src="" alt="Prenda ampliada">
+    </div>
+
     <script>
         // 1. COLOCA AQUÍ TU NÚMERO DE WHATSAPP (CON CÓDIGO 502)
         const WHATSAPP_NUMBER = "50249363761"; 
 
-        // 2. PEGA AQUÍ EL ENLACE CSV DE GOOGLE SHEETS
+        // 2. PEGA AQUÍ TU ENLACE CSV DE GOOGLE SHEETS
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRWvL1PEr1x-VJL35luTlMD7SWh5DOe-7C8Ss3uNcyQSIYQpiReksVLB1bXYsO5qrM_dx8c1G-FMlO/pub?output=csv";
 
         let products = [];
@@ -344,7 +413,6 @@
                 
                 const rows = data.split('\n').map(row => row.split(','));
                 
-                // Omitir la fila de encabezados (fila 0)
                 products = rows.slice(1).filter(row => row.length >= 5 && row[0].trim() !== "").map(row => {
                     return {
                         id: row[0].trim(),
@@ -379,7 +447,9 @@
                 
                 return `
                     <div class="product-card">
-                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                        <div class="image-container" onclick="openImageModal('${product.image}')">
+                            <img src="${product.image}" alt="${product.name}" class="product-image">
+                        </div>
                         <div class="product-info">
                             <div class="product-title">${product.name}</div>
                             <div class="product-price">Q ${product.price.toFixed(2)}</div>
@@ -396,6 +466,18 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('image-modal');
+            const expandedImage = document.getElementById('expanded-image');
+            expandedImage.src = imageSrc;
+            modal.classList.add('open');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.remove('open');
         }
 
         function selectSize(productId, size) {
@@ -488,7 +570,6 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // Cargar productos al iniciar
         loadProductsFromSheets();
     </script>
 </body>
