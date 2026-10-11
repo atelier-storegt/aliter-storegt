@@ -1,6 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <style>
+  .social-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 25px 0;
+    background-color: #fafafa;
+    border-top: 1px solid #eaeaea;
+    margin-top: 40px;
+  }
+
+  .social-links p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+
+  .social-links a {
+    color: #111;
+    transition: transform 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .social-links a:hover {
+    transform: translateY(-3px);
+    color: #e1306c; /* Color rosa elegante al pasar el cursor */
+  }
+</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aliter.storegt - Catálogo Digital</title>
@@ -572,5 +603,25 @@
 
         loadProductsFromSheets();
     </script>
+    <!-- Redes Sociales Oficiales -->
+  <div class="social-links">
+    <p>Síguenos:</p>
+    
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/atelier.storegt" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+      </svg>
+    </a>
+
+    <!-- TikTok -->
+    <a href="https://www.tiktok.com/@atelier.store4" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+      </svg>
+    </a>
+  </div>
 </body>
 </html>
