@@ -418,7 +418,7 @@
                         id: row[0].trim(),
                         name: row[1].trim(),
                         price: parseFloat(row[2].trim()),
-                        image: row[3].trim(),
+                        image: row[3].trim().replace("https://drive.google.com/open?id=", "https://lh3.googleusercontent.com/d/").replace("open?id=", "uc?id="),
                         sizes: row[4].trim().replace(/"/g, '').split(';').map(s => s.trim())
                     };
                 });
